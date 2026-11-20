@@ -1,15 +1,13 @@
-// Wires the page: pick a photo, type a caption, export the square cover as a PNG. A `?shot=` query sets up a fixed
-// scene for a screenshot instead (./shots.js).
+// Wires the page: pick a photo, type a caption, export the square cover as a PNG.
 import { drawCover } from './cover.js';
-import { runShot } from './shots.js';
 
 const canvas = document.getElementById('cover');
 const caption = document.getElementById('caption');
 const status = document.getElementById('status');
-let photo = null;
+const photos = [null, null, null];
 
 function redraw() {
-  drawCover(canvas, photo, caption.value);
+  drawCover(canvas, photos, caption.value);
 }
 
 /** Loads an image from a URL, resolving to the image once it can be drawn. */
@@ -22,30 +20,24 @@ export function loadImage(url) {
   });
 }
 
-document.getElementById('photo').addEventListener('change', async (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-  photo = await loadImage(URL.createObjectURL(file));
-  redraw();
+[1, 2, 3].forEach((i) => {
+  document.getElementById(`photo${i}`).addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    photos[i - 1] = await loadImage(URL.createObjectURL(file));
+    redraw();
+  });
 });
+
 caption.addEventListener('input', redraw);
 document.getElementById('export').addEventListener('click', () => {
   canvas.toBlob((blob) => {
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = 'cover-1080x1080.png';
+    a.download = 'gta6-cover.png';
     a.click();
-    status.textContent = 'Saved cover-1080x1080.png';
+    status.textContent = 'Saved gta6-cover.png';
   }, 'image/png');
 });
 
-const shot = new URLSearchParams(location.search).get('shot');
-if (shot) {
-  runShot(shot, new URLSearchParams(location.search), async (sample, text) => {
-    photo = await loadImage(sample);
-    caption.value = text;
-    redraw();
-  });
-} else {
-  redraw();
-}
+redraw();

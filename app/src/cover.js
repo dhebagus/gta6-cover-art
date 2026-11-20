@@ -2,17 +2,20 @@
 // white capitals along the foot.
 
 /** Draws `photo` (an image, or null) and `caption` onto the canvas's 2D context, at the canvas's own size. */
-export function drawCover(canvas, photo, caption) {
+export function drawCover(canvas, photos, caption) {
   const ctx = canvas.getContext('2d');
   const { width: w, height: h } = canvas;
   ctx.fillStyle = '#2b1838';
   ctx.fillRect(0, 0, w, h);
-  if (photo) {
-    const scale = Math.max(w / photo.naturalWidth, h / photo.naturalHeight);
+
+  const panelWidth = w / 3;
+  photos.forEach((photo, i) => {
+    if (!photo) return;
+    const scale = Math.max(panelWidth / photo.naturalWidth, h / photo.naturalHeight);
     const pw = photo.naturalWidth * scale;
     const ph = photo.naturalHeight * scale;
-    ctx.drawImage(photo, (w - pw) / 2, (h - ph) / 2, pw, ph);
-  }
+    ctx.drawImage(photo, i * panelWidth + (panelWidth - pw) / 2, (h - ph) / 2, pw, ph);
+  });
   const tint = ctx.createLinearGradient(0, h * 0.35, 0, h);
   tint.addColorStop(0, 'rgba(255, 120, 80, 0)');
   tint.addColorStop(1, 'rgba(200, 40, 120, 0.65)');
